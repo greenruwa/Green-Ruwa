@@ -164,7 +164,6 @@
     pointer-events: none;
     z-index: 9999;
     mix-blend-mode: difference;
-    transition: transform 0.1s ease-out;
     left: 0;
     top: 0;
   }

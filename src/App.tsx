@@ -21,7 +21,7 @@ import {
   Phone,
   Facebook
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const InteractiveChar = ({ char, baseColor = "" }: { char: string, baseColor?: string, key?: React.Key }) => {
   if (char === " ") return <span>&nbsp;</span>;
@@ -33,11 +33,13 @@ const InteractiveChar = ({ char, baseColor = "" }: { char: string, baseColor?: s
 };
 
 const CursorFollower = () => {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const cursorRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${e.clientX - 15}px, ${e.clientY - 15}px, 0)`;
+      }
     };
 
     window.addEventListener("mousemove", handleMouseMove);
@@ -46,10 +48,8 @@ const CursorFollower = () => {
 
   return (
     <div 
+      ref={cursorRef}
       className="cursor-follower"
-      style={{
-        transform: `translate3d(${mousePosition.x - 15}px, ${mousePosition.y - 15}px, 0)`
-      }}
     />
   );
 };
@@ -59,6 +59,16 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [navVisible, setNavVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+
+  const handleMobileNavClick = (id: string) => {
+    setIsMenuOpen(false);
+    const element = document.getElementById(id);
+    if (element) {
+      setTimeout(() => {
+        element.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -179,10 +189,19 @@ export default function App() {
           </div>
 
           <div className="md:hidden">
-            <Menu 
-              className="text-white cursor-pointer" 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            />
+            {isMenuOpen ? (
+              <div 
+                className="text-white cursor-pointer p-2" 
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span className="text-xl font-bold">✕</span>
+              </div>
+            ) : (
+              <Menu 
+                className="text-white cursor-pointer" 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+              />
+            )}
           </div>
         </div>
 
@@ -196,16 +215,15 @@ export default function App() {
               className="md:hidden bg-navy border-t border-white/10 overflow-hidden"
             >
               <div className="flex flex-col p-6 space-y-4 text-[10px] font-bold tracking-[0.3em] uppercase">
-                <a href="#work" className="text-white hover:text-orange transition-colors" onClick={() => setIsMenuOpen(false)}>Work</a>
-                <a href="#services" className="text-white hover:text-orange transition-colors" onClick={() => setIsMenuOpen(false)}>Services</a>
-                <a href="#about" className="text-white hover:text-orange transition-colors" onClick={() => setIsMenuOpen(false)}>About</a>
-                <a
-                  href="#quotation"
+                <button className="text-left text-white hover:text-orange transition-colors" onClick={() => handleMobileNavClick("work")}>Work</button>
+                <button className="text-left text-white hover:text-orange transition-colors" onClick={() => handleMobileNavClick("services")}>Services</button>
+                <button className="text-left text-white hover:text-orange transition-colors" onClick={() => handleMobileNavClick("about")}>About</button>
+                <button
                   className="text-cyan font-black border-2 border-cyan p-4 text-center rounded-sm"
-                  onClick={() => setIsMenuOpen(false)}
+                  onClick={() => handleMobileNavClick("quotation")}
                 >
                   HIRE ME
-                </a>
+                </button>
               </div>
             </motion.div>
           )}
@@ -328,7 +346,7 @@ export default function App() {
           <Snowfall />
 
           {/* Carousel / Showcase Section (Orange Service Cards) */}
-          <section id="work" className="relative w-full py-32 overflow-hidden bg-transparent border-none">
+          <section id="work" className="relative w-full py-32 overflow-hidden bg-transparent border-none scroll-mt-24">
             {/* Infinite Scrolling Pattern */}
           <div className="absolute inset-0 z-0 opacity-5 pointer-events-none flex items-center overflow-hidden">
             <motion.div 
@@ -379,7 +397,7 @@ export default function App() {
         </section>
 
           {/* 4. Categorizing with Symbols (Seamless Flow) */}
-          <section id="services" className="w-full bg-transparent py-32 border-none">
+          <section id="services" className="w-full bg-transparent py-32 border-none scroll-mt-24">
           <div className="max-w-7xl mx-auto px-6 md:px-12 flex flex-col items-center">
             {/* Anchored Group (Structural Alignment) */}
             <motion.div 
@@ -441,7 +459,7 @@ export default function App() {
           {/* Testimonials & Footer CTA Wrap */}
           <div className="max-w-7xl mx-auto w-full px-6 md:px-12 flex flex-col items-center">
             {/* 5. The Testimonial Section - 2x2 Grid */}
-            <section id="about" className="relative z-10 w-full py-32">
+            <section id="about" className="relative z-10 w-full py-32 scroll-mt-24">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {[
                 { 
@@ -491,7 +509,7 @@ export default function App() {
           </section>
 
             {/* 6. Contact & WhatsApp Footer */}
-            <section id="quotation" className="w-full text-center pb-40 px-6">
+            <section id="quotation" className="w-full text-center pb-40 px-6 scroll-mt-24">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
